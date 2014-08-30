@@ -6,6 +6,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebService;
 
 import org.openehr.am.parser.ContentObject;
+import org.sigaim.siie.interfaces.reportmanagement.ReportStatus;
 import org.sigaim.siie.interfaces.reportmanagement.ReturnValueCreateHealthcareFacility;
 import org.sigaim.siie.interfaces.reportmanagement.ReturnValueCreatePerformer;
 import org.sigaim.siie.interfaces.reportmanagement.ReturnValueCreateReport;
@@ -69,19 +70,19 @@ public class INTSIIE004ReportManagementImpl {
 		}
 		return new WSReturnValueCreatePerformer(ret);
 	}
+ 
 	@WebMethod
 	public WSReturnValueCreateReport createReport(
 			String requestId,
-			String subjectOfCareId, //II
+			String ehrId, //II
 			String composerId, //FunctionalRole
-			String audioData,
 			String textTranscription,
-			String reportStatus, //CDCV
+			boolean dictated, //CDCV
 			String rootArchetypeId //II
 			)  {
 		ReturnValueCreateReport ret=null;
 		try {
-			ret=ServiceInjector.getInstance().getIntSIIE004ReportManagement().createReport(requestId, bindFromDADL(subjectOfCareId,II.class), bindFromDADL(composerId,FunctionalRole.class), audioData, textTranscription, bindFromDADL(reportStatus,CDCV.class), bindFromDADL(rootArchetypeId,II.class));
+			ret=ServiceInjector.getInstance().getIntSIIE004ReportManagement().createReport(requestId, bindFromDADL(ehrId,II.class), bindFromDADL(composerId,FunctionalRole.class), textTranscription, dictated, bindFromDADL(rootArchetypeId,II.class));
 		} catch(RejectException e) {
 			System.out.println("ERROR");
 			e.printStackTrace();
@@ -97,4 +98,40 @@ public class INTSIIE004ReportManagementImpl {
 		}
 		return new WSReturnValueCreateReport(ret);
 	}
+	@WebMethod
+	public WSReturnValueUpdateReport updateReport(
+			String requestId,
+			String ehrId, //II
+			String previousVersionId, //II
+			String composerId, //FunctionalRole
+			String textTranscription,
+			boolean dictated, //CDCV
+			boolean signed,
+			boolean confirmed,
+			String rootArchetypeId, //II,
+			String encodedConcepts
+			)  {
+		ReturnValueUpdateReport ret=null;
+		try {
+			ReportStatus rstatus=new ReportStatus();
+			rstatus.setDictated(dictated);
+			rstatus.setConfirmed(confirmed);
+			rstatus.setSigned(signed);
+			ret=ServiceInjector.getInstance().getIntSIIE004ReportManagement().updateReport(requestId, bindFromDADL(ehrId,II.class), bindFromDADL(previousVersionId,II.class), bindFromDADL(composerId,FunctionalRole.class), textTranscription, rstatus, bindFromDADL(rootArchetypeId,II.class),encodedConcepts);
+		} catch(RejectException e) {
+			System.out.println("ERROR");
+			e.printStackTrace();
+			ret=new ReturnValueUpdateReport();
+			ret.setRequestId(requestId);
+			ret.setReasonCode(e.getReason().toString());
+		} catch(Exception e) {
+			System.out.println("ERROR");
+			e.printStackTrace();
+			ret=new ReturnValueUpdateReport();
+			ret.setRequestId(requestId);
+			ret.setReasonCode(CSReason.REAS02.toString());
+		}
+		return new WSReturnValueUpdateReport(ret);
+	}
+ 
 }

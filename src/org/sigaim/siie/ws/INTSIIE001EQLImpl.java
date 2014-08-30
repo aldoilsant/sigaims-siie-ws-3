@@ -13,6 +13,7 @@ public class INTSIIE001EQLImpl {
 	@WebMethod
 	public WSReturnValueEQL query(String requestId, String eqlQuery) {
 		try {
+			System.out.println("Recieved EQL query: "+eqlQuery);
 			ReturnValueEQL ret= ServiceInjector.getInstance().getIntSIIE001EQL().query(requestId, eqlQuery);
 			System.out.println("Returning...");
 			return new WSReturnValueEQL(ret);
