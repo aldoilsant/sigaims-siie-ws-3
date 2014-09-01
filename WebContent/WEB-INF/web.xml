@@ -7,6 +7,12 @@
     <res-type>javax.sql.DataSource</res-type>
     <res-auth>Container</res-auth>
   </resource-ref>
+  <resource-ref>
+    <description>SGM Database Datasource</description>
+    <res-ref-name>jdbc/SAPRM</res-ref-name>
+    <res-type>javax.sql.DataSource</res-type>
+    <res-auth>Container</res-auth>
+  </resource-ref>
   <env-entry>
     <env-entry-name>conf/USESAPRM</env-entry-name>
     <env-entry-type>java.lang.Boolean</env-entry-type>
