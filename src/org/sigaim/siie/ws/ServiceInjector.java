@@ -42,7 +42,7 @@ public class ServiceInjector {
 		try {
 			//Get the database resource
 			Context initCtx = new InitialContext();
-			Context envCtx = (Context) initCtx.lookup("java:/comp/env");
+			Context envCtx = (Context) initCtx.lookup("java:comp/env");
 			DataSource ds = (DataSource)envCtx.lookup("jdbc/SIGAIMSIIE");
 			DataSource saprmds = (DataSource)envCtx.lookup("jdbc/SAPRM");
 
