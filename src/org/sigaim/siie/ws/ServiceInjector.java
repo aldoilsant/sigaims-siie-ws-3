@@ -33,23 +33,24 @@ public class ServiceInjector {
 	private SEQLEngine seqlEngine;
 	private IntSIIE001EQL intSIIE001EQL;
 	private IntSIIE004ReportManagement intSIIE004ReportManagement;
-	private DataSource dbDataSource;
 	private IntSIIE003Terminologies terminologiesService;
-
+	private Boolean useSaprm;
+	private String saprm_endpoint;
+	private String sgm_endpoint;
+	private DataSource ds;
+	
 	private ServiceInjector(){
 		try {
 			//Get the database resource
 			Context initCtx = new InitialContext();
 			Context envCtx = (Context) initCtx.lookup("java:comp/env");
-			DataSource ds = (DataSource)envCtx.lookup("jdbc/SIGAIMSIIE");
+			ds = (DataSource)envCtx.lookup("jdbc/SIGAIMSIIE");
 
-			Boolean useSaprm = (Boolean) envCtx.lookup("conf/USESAPRM");
+			useSaprm = (Boolean) envCtx.lookup("conf/USESAPRM");
 
 			System.out.println("Using real saprm: "+useSaprm);
 			if(ds==null) {
 				throw new IllegalArgumentException("Invalid database datasource");
-			} else {
-				dbDataSource=ds;
 			}
 			this.dadlManager=new OpenEHRDADLManager();
 			this.referenceModelManager=new ReflectorReferenceModelManager(this.dadlManager);
@@ -60,7 +61,7 @@ public class ServiceInjector {
 			System.out.println("New SAPRM...");
 			if(useSaprm) {
 				System.out.println("USING DELEGATING SPARM...");
-				String saprm_endpoint=(String) envCtx.lookup("conf/SAPRM_ENDPOINT");
+				saprm_endpoint=(String) envCtx.lookup("conf/SAPRM_ENDPOINT");
 				this.saprm=new WebServiceSigaimSIIE004SAPRM(saprm_endpoint);
 			} else {
 				System.out.println("USING DUMMY SPARM...");
@@ -73,7 +74,7 @@ public class ServiceInjector {
 			this.seqlEngine=engine;
 			this.intSIIE001EQL=new SigaimIntSIIE001EQL(engine,dadlManager);
 			this.intSIIE004ReportManagement=new SigaimIntSIIE004ReportManagement(persistenceManager,referenceModelManager,dadlManager,saprm,engine);
-			String sgm_endpoint=(String) envCtx.lookup("conf/SGM_ENDPOINT");
+			sgm_endpoint=(String) envCtx.lookup("conf/SGM_ENDPOINT");
 
 			this.terminologiesService=new SIGAIMIntSIIE003Terminologies(sgm_endpoint,this.referenceModelManager,this.dadlManager);
 			System.out.println("Service injector ready");
@@ -107,5 +108,18 @@ public class ServiceInjector {
 	}
 	public IntSIIE003Terminologies getIntSIIE003Terminologies() {
 		return this.terminologiesService;
+	}
+	
+	public Boolean getUseSaprm() {
+		return useSaprm;
+	}
+	public String getSaprm_endpoint() {
+		return saprm_endpoint;
+	}
+	public String getSgm_endpoint() {
+		return sgm_endpoint;
+	}
+	public DataSource getDs() {
+		return ds;
 	}
 }

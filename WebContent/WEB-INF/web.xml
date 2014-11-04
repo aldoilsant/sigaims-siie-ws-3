@@ -13,14 +13,14 @@
     <env-entry-value>true</env-entry-value>
   </env-entry>
   <env-entry>
-  	<env-entry-name>conf/SAPRM_ENDPOINT</env-entry-name>
-  	<env-entry-type>java.lang.String</env-entry-type>
-  	<env-entry-value>http://sigaim.saprm.cesga.es:8080/SIGAIM-SAPRM-WS/services/INT004SIIESAPRMImpl</env-entry-value>
+    <env-entry-name>conf/SAPRM_ENDPOINT</env-entry-name>
+    <env-entry-type>java.lang.String</env-entry-type>
+    <env-entry-value>http://sigaim.saprm.cesga.es:8080/SIGAIM-SAPRM-WS/services/INT004SIIESAPRMImpl</env-entry-value>
   </env-entry>
-    <env-entry>
-  	<env-entry-name>conf/SGM_ENDPOINT</env-entry-name>
-  	<env-entry-type>java.lang.String</env-entry-type>
-  	<env-entry-value>http://sigaim.saprm.cesga.es:8080/SIGAIM-SGM-WS/services/INT003SGMImpl</env-entry-value>
+  <env-entry>
+    <env-entry-name>conf/SGM_ENDPOINT</env-entry-name>
+    <env-entry-type>java.lang.String</env-entry-type>
+    <env-entry-value>http://sigaim.saprm.cesga.es:8080/SIGAIM-SGM-WS/services/INT003SGMImpl</env-entry-value>
   </env-entry>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
@@ -67,5 +67,15 @@
   <servlet-mapping>
     <servlet-name>AdminServlet</servlet-name>
     <url-pattern>/servlet/AdminServlet</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>TestingServlet</display-name>
+    <servlet-name>TestingServlet</servlet-name>
+    <servlet-class>org.sigaim.siie.ws.TestingServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>TestingServlet</servlet-name>
+    <url-pattern>/check_service.jsp</url-pattern>
   </servlet-mapping>
 </web-app>
