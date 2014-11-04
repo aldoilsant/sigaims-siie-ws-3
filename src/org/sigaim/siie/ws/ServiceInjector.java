@@ -4,7 +4,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-import org.sigaim.sgm.GlossaryQuery;
 import org.sigaim.siie.dadl.DADLManager;
 import org.sigaim.siie.dadl.OpenEHRDADLManager;
 import org.sigaim.siie.db.PersistenceManager;
@@ -13,9 +12,9 @@ import org.sigaim.siie.interfaces.eql.IntSIIE001EQL;
 import org.sigaim.siie.interfaces.eql.sigaim.SigaimIntSIIE001EQL;
 import org.sigaim.siie.interfaces.reportmanagement.IntSIIE004ReportManagement;
 import org.sigaim.siie.interfaces.reportmanagement.sigaim.SigaimIntSIIE004ReportManagement;
-import org.sigaim.siie.interfaces.saprm.DelegatingSigaimIntSIIE004SAPRM;
 import org.sigaim.siie.interfaces.saprm.DummyINT004SIIESAPRMProxy;
 import org.sigaim.siie.interfaces.saprm.INT004SIIESAPRMProxy;
+import org.sigaim.siie.interfaces.saprm.WebServiceSigaimSIIE004SAPRM;
 import org.sigaim.siie.interfaces.terminologies.IntSIIE003Terminologies;
 import org.sigaim.siie.interfaces.terminologies.sigaim.SIGAIMIntSIIE003Terminologies;
 import org.sigaim.siie.rm.ReferenceModelManager;
@@ -24,7 +23,6 @@ import org.sigaim.siie.seql.engine.SEQLEngine;
 import org.sigaim.siie.seql.engine.SEQLPipeEngine;
 import org.sigaim.siie.seql.engine.execution.SEQLExecutionMemorySolverStage;
 import org.sigaim.siie.seql.engine.preprocessing.SEQLPreprocessingValidateIdentifiedVariablesStage;
-import org.sigaim.utils.accesoBD.AccesoSIGAIM;
 
 public class ServiceInjector {
 	private static final ServiceInjector instance = new ServiceInjector();
@@ -44,7 +42,6 @@ public class ServiceInjector {
 			Context initCtx = new InitialContext();
 			Context envCtx = (Context) initCtx.lookup("java:comp/env");
 			DataSource ds = (DataSource)envCtx.lookup("jdbc/SIGAIMSIIE");
-			DataSource saprmds = (DataSource)envCtx.lookup("jdbc/SAPRM");
 
 			Boolean useSaprm = (Boolean) envCtx.lookup("conf/USESAPRM");
 
@@ -54,9 +51,6 @@ public class ServiceInjector {
 			} else {
 				dbDataSource=ds;
 			}
-			if(saprmds==null) {
-				throw new IllegalArgumentException("Invalid SAPRM database datasource");
-			} 
 			this.dadlManager=new OpenEHRDADLManager();
 			this.referenceModelManager=new ReflectorReferenceModelManager(this.dadlManager);
 			SQLPersistenceManager sqlManager=new SQLPersistenceManager(ds);
@@ -66,7 +60,8 @@ public class ServiceInjector {
 			System.out.println("New SAPRM...");
 			if(useSaprm) {
 				System.out.println("USING DELEGATING SPARM...");
-				this.saprm=new DelegatingSigaimIntSIIE004SAPRM();
+				String saprm_endpoint=(String) envCtx.lookup("conf/SAPRM_ENDPOINT");
+				this.saprm=new WebServiceSigaimSIIE004SAPRM(saprm_endpoint);
 			} else {
 				System.out.println("USING DUMMY SPARM...");
 				this.saprm=new DummyINT004SIIESAPRMProxy();				
@@ -78,8 +73,9 @@ public class ServiceInjector {
 			this.seqlEngine=engine;
 			this.intSIIE001EQL=new SigaimIntSIIE001EQL(engine,dadlManager);
 			this.intSIIE004ReportManagement=new SigaimIntSIIE004ReportManagement(persistenceManager,referenceModelManager,dadlManager,saprm,engine);
-			AccesoSIGAIM.setDataSource(saprmds);
-			this.terminologiesService=new SIGAIMIntSIIE003Terminologies(new GlossaryQuery(),this.referenceModelManager,this.dadlManager);
+			String sgm_endpoint=(String) envCtx.lookup("conf/SGM_ENDPOINT");
+
+			this.terminologiesService=new SIGAIMIntSIIE003Terminologies(sgm_endpoint,this.referenceModelManager,this.dadlManager);
 			System.out.println("Service injector ready");
 		} catch(Exception e) {
 			e.printStackTrace();
