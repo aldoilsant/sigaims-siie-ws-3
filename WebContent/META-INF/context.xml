@@ -16,6 +16,9 @@ url="jdbc:mysql://localhost:8889/sigaimsiie"
 
 maxActive="15"
 
+removeAbandonedTimeout="60"
+
+
 maxIdle="3"/>
 
 </Context>
